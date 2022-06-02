@@ -2,7 +2,7 @@
 # Python 3.10 or higher required
 
 __AUTHOR__ = 'Art Pashchuk'
-__VERSION__ = '1.0.0'
+__VERSION__ = '1.0.1'
 
 TABLE_WIDTH = 5
 TABLE_HEIGHT = 5
