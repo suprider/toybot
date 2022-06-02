@@ -17,45 +17,41 @@ class Table:
 
     def listen(self):
         while True:  # forever loop
-            self.process_command(input('> '))
+            result = self.process_command(input('> '))
+            if result:
+                print(result)
 
     def process_command(self, command):
         cmd = command.upper().strip().split(' ')
         if len(cmd) == 1:  # no space = simple command without params
             if self.robot is None:
-                print('Robot not placed. Please use PLACE command first to specify X, Y and F (facing)')
-                return
+                return 'Robot not placed. Please use PLACE command first to specify X, Y and F (facing)'
             match cmd[0]:
                 case 'MOVE':
                     self.robot.move()
                 case 'LEFT' | 'RIGHT':
                     self.robot.rotate(cmd[0])
                 case 'REPORT':
-                    print(f'{self.robot.position["x"]},{self.robot.position["y"]},{self.robot.facing}')
+                    return self.robot.report()
                 case 'PLACE':
-                    print('This command requires parameters X,Y,F')
+                    return 'This command requires parameters X,Y,F'
                 case _:
-                    print('Command not recognised')
-                    return
+                    return 'Command not recognised'
         elif len(cmd) == 2:  # command + params
             params = cmd[1].split(',')
             if cmd[0] == 'PLACE':
                 if len(params) != 3:
-                    print('Invalid parameters. Use PLACE X,Y,F')
-                    return
+                    return 'Invalid parameters. Use PLACE X,Y,F'
                 valid_coordinates = [n for n in '01234']
                 x, y, f = params[0].strip(), params[1].strip(), params[2].strip()
                 if not (x in valid_coordinates and y in valid_coordinates):
-                    print('Both coordinates must be within range from 0 to 4')
-                    return
-                if f not in ['NORTH', 'SOUTH', 'EAST', 'WEST']:
-                    print('Robot can be facing NORTH, SOUTH, EAST or WEST')
-                    return
+                    return 'Both coordinates must be within range from 0 to 4'
+                if f not in ['NORTH', 'EAST', 'SOUTH', 'WEST']:
+                    return 'Robot can be facing NORTH, SOUTH, EAST or WEST'
                 # all parameters validated, we can safely place robot
                 self.robot = Robot(table=self, position={'x': int(x), 'y': int(y)}, facing=f)
         else:
-            print('Wrong command format')
-            return
+            return 'Wrong command format'
 
 
 class Robot:
@@ -87,6 +83,9 @@ class Robot:
         elif index == 4:
             index = 0
         self.facing = directions[index]
+
+    def report(self):
+        return f'{self.position["x"]},{self.position["y"]},{self.facing}'
 
 
 if __name__ == '__main__':
