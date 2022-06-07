@@ -2,22 +2,26 @@
 # Python 3.10 or higher required
 
 __AUTHOR__ = 'Art Pashchuk'
-__VERSION__ = '1.0.1'
+__VERSION__ = '1.1.0'
 
 TABLE_WIDTH = 5
 TABLE_HEIGHT = 5
+SHOW_MAP = True
 
 
 class Table:
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, show_map=False):
         # set table dimensions
         self.limits = {'x': width, 'y': height}
         self.robot = None  # not placed
+        self.show_map = show_map
 
     def listen(self):
         while True:  # forever loop
             result = self.process_command(input('> '))
+            if self.show_map:
+                print(self.map())
             if result:
                 print(result)
 
@@ -53,16 +57,27 @@ class Table:
         else:
             return 'Wrong command format'
 
+    def map(self):
+        m = ''
+        for row in range(self.limits['y'] - 1, -1, -1):
+            for col in range(0, self.limits['x']):
+                if self.robot and self.robot.position == {'x': col, 'y': row}:
+                    m += self.robot.increments[self.robot.facing]['arrow']
+                else:
+                    m += '⏹'
+            m += '\n'
+        return m
+
 
 class Robot:
     def __init__(self, table, position, facing):
         self.table = table
         self.position = position
         self.facing = facing
-        self.increments = {'NORTH': {'x': 0, 'y': 1},
-                           'EAST': {'x': 1, 'y': 0},
-                           'SOUTH': {'x': 0, 'y': -1},
-                           'WEST': {'x': -1, 'y': 0}
+        self.increments = {'NORTH': {'x': 0, 'y': 1, 'arrow': '⬆'},
+                           'EAST': {'x': 1, 'y': 0, 'arrow': '➡'},
+                           'SOUTH': {'x': 0, 'y': -1, 'arrow': '⬇'},
+                           'WEST': {'x': -1, 'y': 0, 'arrow': '⬅'}
                            }
 
     def move(self):
@@ -89,4 +104,4 @@ class Robot:
 
 
 if __name__ == '__main__':
-    Table(TABLE_WIDTH, TABLE_HEIGHT).listen()
+    Table(TABLE_WIDTH, TABLE_HEIGHT, SHOW_MAP).listen()
